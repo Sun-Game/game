@@ -14,32 +14,35 @@ function debugLog(...args) {
 
 
 // Observer que será adicionado ao relógio
-function criarObserverRelogio() {
+function criaContadorDeCliques(_cliques,_tempo,_mensagem,_recorrencia=false) {
+  let recorrencia=_recorrencia;
+  let cliques=_cliques||3;
+  let tempo=_tempo||3000;
+  let mensagem = _mensagem ||"Atingiu contagem";
   let contador_cliques = 0;
   let tempo_primeiro_clique = null;
   let aviso_enviado = false;
 
-  return function (item) {
+  return function (evento) {
+    if(evento!="click"){
+      return;
+    }
     if (aviso_enviado) return;
-
-    debugLog("observer recebendo MENSAGEM");
-
     const tempo_atual = millis();
-
     if (tempo_primeiro_clique === null) {
       tempo_primeiro_clique = tempo_atual;
     }
-
-    if (tempo_atual - tempo_primeiro_clique <= 3000) {
+    if (tempo_atual - tempo_primeiro_clique <= tempo) {
       contador_cliques++;
     } else {
       contador_cliques = 1;
       tempo_primeiro_clique = tempo_atual;
     }
-
-    if (contador_cliques >= 3) {
-      uiMensagem.exibir("Não adianta, o tempo não vai passar mais rápido.",3000);
+    if (contador_cliques >= cliques) {
+      uiMensagem.exibir(mensagem,3000);
+      if(!recorrencia){
       aviso_enviado = true;
+      }
     }
   };
 }
@@ -67,7 +70,6 @@ function adicionarComportamentoExtra(objeto, novaFuncao) {
  * 
  */
 function digitar(_texto, position, _velocidade_digitacao, _largura, _comSom, memoria) {
-  _comSom=true;
   if (!memoria.frameInicio) {
     memoria.frameInicio = screen[Manager.settings.tela].frame;
     memoria.isWorking = true;
