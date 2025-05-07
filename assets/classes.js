@@ -4,27 +4,26 @@
 
 
 class Botao {
-    constructor(tipo, texto, posicao) {
-      this.texto = texto;
-      this.tipo = tipo;
+    constructor(innerText, posicao) {
+      this.innerText = innerText;
       this.posicao = posicao;
       this.size = [150, 50];
       this.estado = 0;
       this.val = 0;
-      this.sprite = Manager.image.sprites[1];
-      this._textSize = 25;
+      this.sprite_NOVO = "botaoMenu";
+      //this.sprite = Manager.image.botaoMenu;
+      this._textSize = 15;
       this.opacidade = 0;
       this.released = false;
       this.pressed=false;
+      this.textFont= "pixelHB";
     }
     draw() {
       this.attPosicao();
       this.attOpacidade();
-      if (this.estado === 0) this.drawSprite(0, Manager.paleta[1], 25);
-      if (this.estado === 1 && this.tipo === "menu")
-        this.drawSprite(1, Manager.paleta[2], 28);
-      if (this.estado === 1 && this.tipo === "opcao")
-        this.drawSprite(0, Manager.paleta[1], 28);
+      if (this.estado === 0) this.drawSprite(0, Manager.paleta[1], this._textSize);
+      if (this.estado === 1)
+        this.drawSprite(1, Manager.paleta[2], this._textSize);
       this.checkmouseOver();
       this.checkMouseClick();
     }
@@ -38,9 +37,7 @@ class Botao {
       if (isMouseOver(this._x1, this._y1, this._x2, this._y2)) {
         if (this.estado === 0) {
           this.estado = 1;
-          if (this.tipo === "menu") {
-            Manager.sound.play("efeitoBotao");
-          }
+          Manager.sound.play("efeitoBotao");
         }
         return;
       }
@@ -69,15 +66,14 @@ class Botao {
     }
     drawSprite(_frame, _cor, _lerp) {
       push();
-      this.sprite.setFrame(_frame);
-      tint(255, this.opacidade);
-      image(this.sprite, this._x1, this._y1);
+      Manager.drawSprite(this.sprite_NOVO,_frame,this._x1,this._y1,this.opacidade)
       this._textSize = lerp(this._textSize, _lerp, 0.1);
       textSize(this._textSize);
-      textFont(Manager.font.fonts[1]);
+      Manager.applyFont(this.textFont);
       textAlign(CENTER, CENTER);
       fill(_cor[0], _cor[1], _cor[2], this.opacidade);
-      text(this.texto, this.posicao[0], this.posicao[1]);
+      //FIXME: Criar uma maneira de identificar se o texto irá caber nos limites do botão, caso contrário, ajustar tamanho do texto.
+      text(this.innerText, this.posicao[0], this.posicao[1]);
       pop();
     }
   }
@@ -187,7 +183,7 @@ class Botao {
         if (typeof item.preload === 'function') {
           item.preload(); 
         }else{
-          debugLog("Item: ( "+item.name+" ) não tem preload");
+          //debugLog("Item: ( "+item.name+" ) não tem preload");
         }
       }
     }
@@ -255,9 +251,9 @@ class Botao {
         this.can_press
       ) {
         this.pressed = true;
-        Manager.sound.play(this.sound);
+        if(this.sound){this.sound.play();};
         this.estado = !this.estado;
-        this.notificarObservers();
+        this.notificarObservers("click");
         debugLog("Notificar:  "+this.name+ "  mudou estado para:  "+this.estado);
       }
     }
@@ -278,9 +274,9 @@ class Botao {
     adicionarObserver(fn){
       this.observers.push(fn);
     }
-    notificarObservers(){
+    notificarObservers(evento){
       for(const fn of this.observers){
-        fn(this);
+        fn(evento);
       }
     }
   }
@@ -305,14 +301,18 @@ class Botao {
       super(nome,_figura,_pos,_ordem);
       this.sprite = new Sprite(Manager.image.interruptor, _pos);;
       this.sprite.resize(70/4, 100/4);
+      this.somLigando=Manager.sound.sounds.efeitoInterruptorLigado;
+      this.somDesligando=Manager.sound.sounds.efeitoInterruptorDesligado;
    }
     draw() {
       this.sprite.fig.setFrame(1);
       if (this.estado) {
         this.sprite.fig.setFrame(0);
+        this.sound=this.somDesligando;
       }
       this.sprite.draw();
       if (!this.estado) {
+        this.sound=this.somLigando;
         fill(0, 0, 10, 200);
         rect(0, 0, width, height);
       }
@@ -385,16 +385,17 @@ class Botao {
     constructor(texto,pos){
       this.string=texto||"";
       this.texto= new TextoDigitavel(this.string,pos);
-      this.font=Manager.font.fonts[2];
+      this.font="pixelLigth";
       this.color=color('white');
       this.pos=pos||[0,0];
       this.size=8;
     }
     show(){
+      
       push();
       textSize(this.size);
       fill(this.color);
-      textFont(this.font);
+      Manager.applyFont(this.font);
       textAlign(CENTER,CENTER);
       this.texto.digitar();
       pop();
@@ -410,14 +411,17 @@ class Transicao{
   constructor(){
     this.opacidade=0;
     this.direta=false;
-  }
+  };
+  changeScreen(telaDestino){
+    Manager.setScreen(telaDestino);
+    screen[Manager.getScreen()].teardown();
+  };
   fade(telaDestino,velocidade = 5) {
   background(0, this.opacidade);
   this.direta=false;
   if (this.opacidade > 254) {
     this.opacidade = 0;
-    Manager.settings.tela = telaDestino;
-    screen[Manager.settings.tela].teardown();
+    this.changeScreen(telaDestino);
     return;
   }
   this.opacidade+=velocidade;
@@ -425,8 +429,7 @@ class Transicao{
   }
   cut(telaDestino){
   this.direta=true;
-  Manager.settings.tela = telaDestino;
-  screen[Manager.settings.tela].teardown();
+  this.changeScreen(telaDestino);
   return;
   }
   
