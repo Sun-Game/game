@@ -12,14 +12,14 @@ for (let i = 0; i < Manager.settings.numTelas; i++) {
 
 screen[0].setup = function () {
   Manager.settings.start = 0;
-  size = 50;
-  texto = texts[Manager.settings.tela][0];
+  size = 40;
+  texto = Manager.getText(Manager.getScreen(),0);
   _botoes_menu = [];
-  _botoes_menu[0] = new Botao("menu", texts[Manager.settings.tela][1], [
+  _botoes_menu[0] = new Botao(Manager.getText("menus","start"), [
     width / 2,
     height * 0.65,
   ]);
-  _botoes_menu[1] = new Botao("menu", texts[Manager.settings.tela][2], [
+  _botoes_menu[1] = new Botao(Manager.getText("menus","load"), [
     width / 2,
     height * 0.65 + 60,
   ]);
@@ -27,32 +27,28 @@ screen[0].setup = function () {
     texto,
     [width / 2, height / 2 - 50],
     0.15,
-    50,
+    null,
     false
   );
 };
 screen[0].loop = function () {
   background(Manager.paleta[0]);
-  textFont(Manager.font.fonts[0]);
+  Manager.applyFont("pixelBold");
   push();
   textSize(size);
   fill(Manager.paleta[1]);
   textAlign(CENTER, CENTER);
   texto1.digitar();
   pop();
-  //if (texto1.mem.done != true) {
-  //  return;
-  //}
-  _botoes_menu[0].sprite.opacity = 100;
   _botoes_menu[0].draw();
   _botoes_menu[1].draw();
   Manager.settings.start = _botoes_menu[0].val;
   if (Manager.settings.start === 1) this.transicao.fade(1);
 };
 screen[1].setup = function () {
-  exit = new Botao("opcao", "Pular", [width / 2, height - 50]);
+  exit = new Botao(Manager.getText("menus","skip"), [width / 2, height - 50]);
   texto1 = new TextoDigitavel(
-    texts[Manager.settings.tela][0],
+    Manager.getText(Manager.settings.tela,0),
     [width / 2, height / 2 - 100],
     0.5,
     35,
@@ -65,7 +61,7 @@ screen[1].loop = function () {
   textAlign(CENTER, TOP);
   textSize(15);
   fill(Manager.paleta[1]);
-  textFont(Manager.font.fonts[2]);
+  Manager.applyFont("pixelLigth");
   texto1.digitar();
   pop();
   exit.draw();
@@ -75,11 +71,11 @@ screen[1].loop = function () {
 };
 screen[2].setup = function () {
   this.reset();
-  exit = new Botao("opcao", "Pular", [width / 2, height - 50]);
+  exit = new Botao(Manager.getText("menus","skip"), [width / 2, height - 50]);
   imgY = height + 50;
   _fundo_vermelho = 0;
   texto1 = new TextoDigitavel(
-    texts[Manager.settings.tela][0],
+    Manager.getText(Manager.settings.tela,0),
     [width / 2, height / 2 - 200],
     0.5,
     35,
@@ -93,16 +89,16 @@ screen[2].loop = function () {
   textAlign(CENTER, TOP);
   textSize(15);
   fill(Manager.paleta[1]);
-  textFont(Manager.font.fonts[2]);
+  Manager.applyFont("pixelLigth");
   texto1.digitar();
-  Manager.image.sprites[0].resize(25 * 5, 33 * 5);
+  Manager.image.brasaoSUN.resize(25 * 5, 33 * 5);
   if (this.frame > 400) {
     _fundo_vermelho = lerp(_fundo_vermelho, 255, 0.01);
     Manager.sound.play("hinoSUN",true);
     let imgY_alvo = 200 + 10 * sin(this.frame / 50);
     let imgY_velocidade = 0.05;
     imgY = lerp(imgY, imgY_alvo, imgY_velocidade);
-    image(Manager.image.sprites[0], width / 2 - 65, imgY);
+    image(Manager.image.brasaoSUN, width / 2 - 65, imgY);
   }
 
   pop();
@@ -113,9 +109,9 @@ screen[2].loop = function () {
   }
 };
 screen[3].setup = function () {
-  exit = new Botao("opcao", "OK", [100, 150]);
+  exit = new Botao(Manager.getText("menus","ok"), [100, 150]);
   sala_computador.setup();
-  texto1 = new TextoDigitavel(texts[Manager.settings.tela][0], [25, 25], 0.7, 35, false);
+  texto1 = new TextoDigitavel(Manager.getText(Manager.settings.tela,0), [25, 25], 0.7, 35, false);
 };
 screen[3].loop = function () {
   sala_computador.draw();
@@ -125,7 +121,7 @@ screen[3].loop = function () {
   textSize(90);
   fill(Manager.paleta[1]);
   textSize(12);
-  textFont(Manager.font.fonts[2]);
+  Manager.applyFont("pixelLigth");
   texto1.digitar();
   pop();
   exit.draw();
