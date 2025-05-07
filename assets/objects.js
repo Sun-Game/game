@@ -32,6 +32,7 @@ sala_computador.setup=function(){
   });
   // Adicionando o comportamento de atualizar os frames para o ponteiro girar
   adicionarComportamentoExtra(this.itens.relogio,function(deltaTime) {
+    if(deltaTime>100){deltaTime=100};
     this.timer+=deltaTime;
       if(this.timer>=this.intervalo){
         this.frame++;
@@ -42,8 +43,10 @@ sala_computador.setup=function(){
       };
     },)
     
-    const observerRelogio = criarObserverRelogio();
-    this.itens.relogio.adicionarObserver(observerRelogio);
+    const observerCliquesRelogio = criaContadorDeCliques(5,20000,"Não adianta, o tempo não vai passar mais rápido.");
+    this.itens.relogio.adicionarObserver(observerCliquesRelogio);
+    const observerCliquesCadeira = criaContadorDeCliques(2,5000,"A cadeira não vai sair do lugar.",true);
+    this.itens.cadeira.adicionarObserver(observerCliquesCadeira);
   
 };
 
