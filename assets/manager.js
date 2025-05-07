@@ -1,3 +1,14 @@
+// TODO: Criar uma forma de salvar o progresso no navegador
+
+const textManager={
+  lang:"pt",
+  setLang(NewLang){
+    this.lang=NewLang;
+  },
+  getText(tela,texto){
+    return texts[this.lang][tela][texto];
+  },
+};
 
 let uiMensagem = {
   texto: "",
@@ -40,18 +51,30 @@ let uiMensagem = {
 
 
 const gameSettings = {
-    tela: 4,
+    tela: 0,
     numTelas: 10,
     start: 0,
+    /**
+     * Função que define a tela do jogo
+     * @param {inteiro} - numero da tela
+     */
+    setScreen(screen=0){
+      this.tela=screen;
+    },
+    /**
+     * Retorna número da tela atual
+     * @returns {int} - numero da tela
+     */
+    getScreen(){
+      return this.tela;
+    },
   };
 
   const ImageManager ={
-    sprites:[],
-    interruptor:[],
     salacomputador:[],
     preload(){
-        this.sprites[0]=loadImage("assets/images/image1.png");
-        this.sprites[1]=loadImage("assets/images/image2.gif");
+        this.brasaoSUN=loadImage("assets/images/image1.png");
+        this.botaoMenu=loadImage("assets/images/image2.gif");
         this.interruptor= loadImage("assets/images/interruptor.gif");
         this.salacomputador={
         background:loadImage("assets/images/image3.png"),
@@ -61,15 +84,37 @@ const gameSettings = {
         broche:loadImage("assets/images/image6.png"),
         };
     },
+    drawSprite(sprite,frame,x1,y1,opacidade){
+      this.botaoMenu.setFrame(frame);
+      tint(255, opacidade);
+      image(this.botaoMenu,x1,y1);
+
+    },
+    
   };
 
   const FontsManager ={
-    fonts:[],
+    pixelBold:[],
+    pixelHB:[],
+    pixelLigth:[],
     preload(){
-      this.fonts[0]=loadFont("assets/fonts/font1.ttf");
-      this.fonts[1]=loadFont("assets/fonts/font2.ttf");
-      this.fonts[2]=loadFont("assets/fonts/font3.ttf");
-    }
+      this.pixelBold=loadFont("assets/fonts/bold.ttf");
+      this.pixelHB=loadFont("assets/fonts/hb.ttf");
+      this.pixelLigth=loadFont("assets/fonts/light.ttf");
+    },
+    getFont(nome) {
+      const permitidas = ["pixelBold", "pixelHB", "pixelLigth"];
+      if (permitidas.includes(nome)) {
+        return this[nome];
+      }
+      console.error(`Fonte "${nome}" não encontrada. Retornando pixelLigth.`);
+      return this.pixelLigth;
+    },
+    applyFont(fonte){
+      textFont(this[fonte]);
+    },
+    
+
   };
 
   const SoundManager = {
@@ -116,6 +161,7 @@ const gameSettings = {
   };
   
   const Manager={
+    text: textManager,
     sound: SoundManager,
     image: ImageManager,
     font: FontsManager,
@@ -129,6 +175,25 @@ const gameSettings = {
       this.sound.preload();
       this.image.preload();
       this.font.preload();
-    }
+    },
+    setScreen(screen){
+      this.settings.setScreen(screen);
+    },
+    getScreen(){
+      return this.settings.getScreen();
+    },
+    getFont(fonte){
+      return this.font.getFont(fonte);
+    },
+    getText(tela,texto){
+      return this.text.getText(tela, texto);
+    },
+    applyFont(fonte){
+      this.font.applyFont(fonte);
+    },
+    drawSprite(sprite,frame,x1,y1,opacidade){
+    this.image.drawSprite(sprite,frame,x1,y1,opacidade);
+
+    },
   };
   
