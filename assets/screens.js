@@ -11,15 +11,14 @@ for (let i = 0; i < Manager.settings.numTelas; i++) {
 
 
 screen[0].setup = function () {
-  Manager.settings.start = 0;
+  Manager.settings.setStartState(false);
   size = 40;
   texto = Manager.getText(Manager.getScreen(),0);
-  _botoes_menu = [];
-  _botoes_menu[0] = new Botao(Manager.getText("menus","start"), [
+  startButton = new Botao(Manager.getText("menus","start"), [
     width / 2,
     height * 0.65,
   ]);
-  _botoes_menu[1] = new Botao(Manager.getText("menus","load"), [
+  loadButton = new Botao(Manager.getText("menus","load"), [
     width / 2,
     height * 0.65 + 60,
   ]);
@@ -40,13 +39,13 @@ screen[0].loop = function () {
   textAlign(CENTER, CENTER);
   texto1.digitar();
   pop();
-  _botoes_menu[0].draw();
-  _botoes_menu[1].draw();
-  Manager.settings.start = _botoes_menu[0].val;
-  if (Manager.settings.start === 1) this.transicao.fade(1);
+  startButton.draw();
+  loadButton.draw();
+  Manager.settings.setStartState(startButton.getState());
+  if (Manager.settings.start) this.transicao.fade(1);
 };
 screen[1].setup = function () {
-  exit = new Botao(Manager.getText("menus","skip"), [width / 2, height - 50]);
+  skipButton = new Botao(Manager.getText("menus","skip"), [width / 2, height - 50]);
   texto1 = new TextoDigitavel(
     Manager.getText(Manager.settings.tela,0),
     [width / 2, height / 2 - 100],
@@ -64,14 +63,14 @@ screen[1].loop = function () {
   Manager.applyFont("pixelLigth");
   texto1.digitar();
   pop();
-  exit.draw();
-  if (exit.val === 1) {
+  skipButton.draw();
+  if (skipButton.getState()) {
     this.transicao.fade(2);
   }
 };
 screen[2].setup = function () {
   this.reset();
-  exit = new Botao(Manager.getText("menus","skip"), [width / 2, height - 50]);
+  skipButton = new Botao(Manager.getText("menus","skip"), [width / 2, height - 50]);
   imgY = height + 50;
   _fundo_vermelho = 0;
   texto1 = new TextoDigitavel(
@@ -102,14 +101,14 @@ screen[2].loop = function () {
   }
 
   pop();
-  exit.draw();
-  if (exit.val === 1) {
+  skipButton.draw();
+  if (skipButton.getState()) {
     Manager.sound.stop("hinoSUN");
     this.transicao.fade(3);
   }
 };
 screen[3].setup = function () {
-  exit = new Botao(Manager.getText("menus","ok"), [100, 150]);
+  skipButton = new Botao(Manager.getText("menus","ok"), [100, 150]);
   sala_computador.setup();
   texto1 = new TextoDigitavel(Manager.getText(Manager.settings.tela,0), [25, 25], 0.7, 35, false);
 };
@@ -124,8 +123,8 @@ screen[3].loop = function () {
   Manager.applyFont("pixelLigth");
   texto1.digitar();
   pop();
-  exit.draw();
-  if (exit.val === 1) {
+  skipButton.draw();
+  if (skipButton.getState()) {
     this.transicao.cut(4);
   }
 };
@@ -136,7 +135,7 @@ screen[4].setup = function () {
 screen[4].loop = function () {
   sala_computador.draw();
   sala_computador.att(deltaTime);
-  if(sala_computador.itens.broche.pos[0]>700&&sala_computador.itens.broche.pos[0]>460){
+  if(sala_computador.itens.broche.pos[0]>700){
     this.transicao.fade(0);
   }
 };
