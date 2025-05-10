@@ -53,7 +53,7 @@ let uiMensagem = {
 const gameSettings = {
     tela: 0,
     numTelas: 10,
-    start: 0,
+    start: false,
     /**
      * Função que define a tela do jogo
      * @param {inteiro} - numero da tela
@@ -68,6 +68,9 @@ const gameSettings = {
     getScreen(){
       return this.tela;
     },
+    setStartState(state){
+      this.start=state;
+    }
   };
 
   const ImageManager ={
