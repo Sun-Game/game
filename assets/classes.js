@@ -4,14 +4,14 @@
 
 
 class Botao {
-    constructor(innerText, posicao) {
+    constructor(innerText, position) {
       this.innerText = innerText;
-      this.posicao = posicao;
+      this.centerPosition = position;
       this.size = [150, 50];
-      this.estado = 0;
-      this.val = 0;
-      this.sprite_NOVO = "botaoMenu";
-      //this.sprite = Manager.image.botaoMenu;
+      this.initialPosition = [position[0]-this.size[0]/2,position[1]-this.size[1]/2];
+      this.hover = false;
+      this.state = false;
+      this.spriteName = "botaoMenu";
       this._textSize = 15;
       this.opacidade = 0;
       this.released = false;
@@ -19,29 +19,22 @@ class Botao {
       this.textFont= "pixelHB";
     }
     draw() {
-      this.attPosicao();
       this.attOpacidade();
-      if (this.estado === 0) this.drawSprite(0, Manager.paleta[1], this._textSize);
-      if (this.estado === 1)
+      if (!this.hover) this.drawSprite(0, Manager.paleta[1], this._textSize);
+      if (this.hover)
         this.drawSprite(1, Manager.paleta[2], this._textSize);
       this.checkmouseOver();
       this.checkMouseClick();
     }
-    attPosicao() {
-      this._x1 = this.posicao[0] - this.size[0] / 2;
-      this._x2 = this.posicao[0] + this.size[0] / 2;
-      this._y1 = this.posicao[1] - this.size[1] / 2;
-      this._y2 = this.posicao[1] + this.size[1] / 2;
-    }
     checkmouseOver() {
-      if (isMouseOver(this._x1, this._y1, this._x2, this._y2)) {
-        if (this.estado === 0) {
-          this.estado = 1;
+      if (isMouseOver(this.initialPosition[0], this.initialPosition[1],this.initialPosition[0]+this.size[0],this.initialPosition[1]+this.size[1])) {
+        if (!this.hover) {
+          this.hover = true;
           Manager.sound.play("efeitoBotao");
         }
         return;
       }
-      this.estado = 0;
+      this.hover = false;
       return;
     }
     checkMouseReleased() {
@@ -53,28 +46,35 @@ class Botao {
       this.checkMouseReleased();
       if (
         this.released &&
-        this.estado == 1 &&
+        this.hover == true &&
         mouseIsPressed &&
         mouseButton === LEFT &&
         !this.pressed
       ) {
-        this.val = 1;
+        this.state = true;
       }
     }
     attOpacidade() {
+      if(this.opacidade>254){
+        this.opacidade=255;
+        return;
+      }
       this.opacidade = lerp(this.opacidade, 255, 0.007);
     }
     drawSprite(_frame, _cor, _lerp) {
       push();
-      Manager.drawSprite(this.sprite_NOVO,_frame,this._x1,this._y1,this.opacidade)
+      Manager.drawSprite(this.spriteName,_frame,this.initialPosition[0],this.initialPosition[1],this.opacidade)
       this._textSize = lerp(this._textSize, _lerp, 0.1);
       textSize(this._textSize);
       Manager.applyFont(this.textFont);
       textAlign(CENTER, CENTER);
       fill(_cor[0], _cor[1], _cor[2], this.opacidade);
       //FIXME: Criar uma maneira de identificar se o texto irá caber nos limites do botão, caso contrário, ajustar tamanho do texto.
-      text(this.innerText, this.posicao[0], this.posicao[1]);
+      text(this.innerText, this.centerPosition[0], this.centerPosition[1]);
       pop();
+    }
+    getState(){
+      return this.state;
     }
   }
   
